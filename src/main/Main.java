@@ -1,87 +1,44 @@
 package main;
 
-import model.*;
+import service.TransactionService;
 import service.UserService;
 
+import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
-        // Initialize UserService
+        // Initialize UserService and TransactionService
         UserService userService = new UserService();
+        TransactionService transactionService = new TransactionService(userService);
 
-        // 1. Test Creating Users
-        System.out.println("Testing createUser with valid details...");
-        userService.createUser("johndoe", "Password123@", "johndoe@example.com", "John", "Doe"); // Expected: Success
-        userService.createUser("janedoe", "Password456@", "janedoe@example.com", "Jane", "Doe"); // Expected: Success
-        System.out.println("Testing createUser with duplicate username...");
-        userService.createUser("johndoe", "AnotherPassword789@", "newemail@example.com", "Johnny", "D"); // Expected: Username taken
+        // Create two users
+        userService.createUser("user1", "password123", "user1@example.com", "User", "One");
+        userService.createUser("user2", "password123", "user2@example.com", "User", "Two");
 
-        // 2. Test Retrieving User Details
-        System.out.println("\nTesting getUserDetails for existing username...");
-        User existingUser = userService.getUserDetails("johndoe"); // Expected: User found
-        if (existingUser != null) {
-            System.out.println("Found user: " + existingUser.getUsername());
-        } else {
-            System.out.println("User not found.");
-        }
+        // Add transactions for user1
+        transactionService.addTransaction("user1", "income", 100.0, LocalDate.now(), "Job income");
+        transactionService.addTransaction("user1", "income", 50.0, LocalDate.now().minusDays(1), "Side job");
+        transactionService.addTransaction("user1", "expense", 30.0, LocalDate.now().minusDays(2), "Groceries");
+        transactionService.addTransaction("user1", "expense", 20.0, LocalDate.now().minusDays(3), "Utilities");
 
-        System.out.println("Testing getUserDetails for non-existing username...");
-        User nonExistingUser = userService.getUserDetails("nonexistentuser"); // Expected: User not found
-        if (nonExistingUser != null) {
-            System.out.println("Found user: " + nonExistingUser.getUsername());
-        } else {
-            System.out.println("User not found.");
-        }
+        // Add transactions for user2
+        transactionService.addTransaction("user2", "income", 300.0, LocalDate.now(), "Bonus");
+        transactionService.addTransaction("user2", "income", 150.0, LocalDate.now().minusDays(1), "Freelance");
+        transactionService.addTransaction("user2", "expense", 80.0, LocalDate.now().minusDays(2), "Shopping");
+        transactionService.addTransaction("user2", "expense", 40.0, LocalDate.now().minusDays(3), "Transport");
 
-        // 3. Test Deleting Users
-        System.out.println("\nTesting deleteUser with existing username...");
-        userService.deleteUser("johndoe"); // Expected: User deleted
-        System.out.println("Testing deleteUser with non-existing username...");
-        userService.deleteUser("nonexistentuser"); // Expected: Username does not exist
+        // Test getTotalAmountByType directly for user1
+        System.out.println("Testing getTotalAmountByType for user1...");
+        double user1IncomeTotal = transactionService.getTotalAmountByType("user1", "income");  // Expected: 150.0
+        double user1ExpenseTotal = transactionService.getTotalAmountByType("user1", "expense"); // Expected: 50.0
+        System.out.println("Expected income total for user1: 150.0, Calculated: " + user1IncomeTotal);
+        System.out.println("Expected expense total for user1: 50.0, Calculated: " + user1ExpenseTotal);
 
-        // Verify deletion by trying to retrieve deleted user
-        System.out.println("Verifying deletion by retrieving deleted user...");
-        User deletedUser = userService.getUserDetails("johndoe"); // Expected: User not found
-        if (deletedUser == null) {
-            System.out.println("User 'johndoe' successfully deleted.");
-        } else {
-            System.out.println("User deletion failed.");
-        }
-
-        // 4. Test Updating Users - Valid Update
-        System.out.println("\nTesting updateUser with valid details...");
-        User updatedUser = userService.updateUser("alexsmith",  "UpdatedPass456@", "updated.email@example.com", "Alexander", "Smithy"); // Expected: User updated
-
-        if (updatedUser != null) {
-            System.out.println("User updated successfully:");
-            System.out.println("Username: " + updatedUser.getUsername());
-            System.out.println("Password: " + updatedUser.getPassword());
-            System.out.println("Email: " + updatedUser.getEmail());
-            System.out.println("First Name: " + updatedUser.getFirstName());
-            System.out.println("Last Name: " + updatedUser.getLastName());
-        } else {
-            System.out.println("User update failed.");
-        }
-
-        // Ensure that "alexsmith" can no longer be retrieved, and "alexsmithUpdated" is now active
-        System.out.println("\nVerifying that the username has been updated...");
-        if (userService.getUserDetails("alexsmith") == null) {
-            System.out.println("Original username 'alexsmith' successfully removed.");
-        }
-        User newUpdatedUser = userService.getUserDetails("alexsmithUpdated");
-        if (newUpdatedUser != null) {
-            System.out.println("Updated username 'alexsmithUpdated' found.");
-        }
-
-        // 5. Test Updating Users - Invalid Update (Duplicate Username)
-        System.out.println("\nTesting updateUser with invalid details (duplicate username)...");
-        userService.createUser("janedoe", "Password456@", "janedoe@example.com", "Jane", "Doe"); // Create a user with "janedoe" username
-        User invalidUpdate = userService.updateUser("janedoe", "passUpdated",  "updated.email@example.com", "Updated", "name"); // Expected: Update failed
-
-        if (invalidUpdate == null) {
-            System.out.println("Invalid update attempt correctly handled.");
-        } else {
-            System.out.println("Unexpected update success: " + invalidUpdate.getUsername());
-        }
+        // Test getTotalAmountByType directly for user2
+        System.out.println("Testing getTotalAmountByType for user2...");
+        double user2IncomeTotal = transactionService.getTotalAmountByType("user2", "income");  // Expected: 450.0
+        double user2ExpenseTotal = transactionService.getTotalAmountByType("user2", "expense"); // Expected: 120.0
+        System.out.println("Expected income total for user2: 450.0, Calculated: " + user2IncomeTotal);
+        System.out.println("Expected expense total for user2: 120.0, Calculated: " + user2ExpenseTotal);
     }
 }

@@ -10,22 +10,7 @@ import java.util.ArrayList;
 public class UserService {
 
     //arraylist for user objects to be stored
-    private ArrayList<User> users = new ArrayList<>();
-
-    /**
-     * Checks if a username already exists in the users list.
-     *
-     * @param username the username to check
-     * @return true if the username exists, false otherwise
-     */
-    private boolean usernameExists(String username) {
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    private final ArrayList<User> users = new ArrayList<>();
 
 
     /**
@@ -49,6 +34,23 @@ public class UserService {
         }
 
     }
+
+    /**
+     * Checks if a username already exists in the users list.
+     *
+     * @param username the username to check
+     * @return true if the username exists, false otherwise
+     */
+    public boolean usernameExists(String username) {
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     /**
      * Retrieves a user's details based on the username.
