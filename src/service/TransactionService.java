@@ -1,6 +1,8 @@
 package service;
 
 import model.Transaction;
+import repository.UserRepository;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,15 +19,15 @@ public class TransactionService {
     private final List<Transaction> transactions = new ArrayList<>();
 
     // Reference to UserLookupService (implemented by UserRepository)
-    private final UserLookupService userLookupService;
+    private final UserRepository userRepository;
 
     /**
      * Constructor for TransactionService.
      *
-     * @param userLookupService the UserLookupService instance to use
+     * @param userRepository the UserRepository instance to use
      */
-    public TransactionService(UserLookupService userLookupService) {
-        this.userLookupService = userLookupService;
+    public TransactionService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     /**
@@ -40,7 +42,7 @@ public class TransactionService {
      * @param description     A brief description of the transaction
      */
     public void addTransaction(String username, String transactionType, double amount, LocalDate transactionDate, String description) {
-        if (!userLookupService.usernameExists(username)) {
+        if (!userRepository.usernameExists(username)) {
             throw new IllegalArgumentException("Username '" + username + "' does not exist. Cannot add transaction.");
         }
         transactions.add(new Transaction(username, transactionType, amount, transactionDate, description));
@@ -58,7 +60,7 @@ public class TransactionService {
         List<Transaction> userTransactions = new ArrayList<>();
 
         // Check if the username exists using UserLookupService
-        if (!userLookupService.usernameExists(username)) {
+        if (!userRepository.usernameExists(username)) {
             throw new IllegalArgumentException("Username '" + username + "' does not exist.");
         }
 

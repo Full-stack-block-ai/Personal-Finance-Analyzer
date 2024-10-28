@@ -1,7 +1,6 @@
 package repository;
 
 import model.User;
-import service.UserLookupService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +9,22 @@ import java.util.List;
  * Repository class for managing user data.
  * This class provides methods to add, remove, and retrieve users.
  */
-public class UserRepository implements UserLookupService {
+public class UserRepository{
 
     // List to store User objects
     private final List<User> users = new ArrayList<>();
+
+
+    /**
+     * Checks if a username exists in the repository.
+     *
+     * @param username the username to check
+     * @return true if the username exists, false otherwise
+     */
+
+    public boolean usernameExists(String username) {
+        return users.stream().anyMatch(user -> user.getUsername().equals(username));
+    }
 
     /**
      * Adds a new user to the repository.
@@ -33,16 +44,6 @@ public class UserRepository implements UserLookupService {
         users.remove(user);
     }
 
-    /**
-     * Checks if a username exists in the repository.
-     *
-     * @param username the username to check
-     * @return true if the username exists, false otherwise
-     */
-    @Override
-    public boolean usernameExists(String username) {
-        return users.stream().anyMatch(user -> user.getUsername().equals(username));
-    }
 
     /**
      * Retrieves a user by username.
