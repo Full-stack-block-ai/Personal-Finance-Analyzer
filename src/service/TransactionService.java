@@ -1,7 +1,8 @@
 package service;
+
 import model.Transaction;
-import java.util.ArrayList;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -12,28 +13,34 @@ import java.util.Objects;
  */
 public class TransactionService {
 
-    private final UserService userService;
+    // List to store Transaction objects
     private final List<Transaction> transactions = new ArrayList<>();
 
-    // Constructor to accept UserService instance
-    public TransactionService(UserService userService) {
-        this.userService = userService;
-    }
+    // Reference to UserLookupService (implemented by UserRepository)
+    private final UserLookupService userLookupService;
 
+    /**
+     * Constructor for TransactionService.
+     *
+     * @param userLookupService the UserLookupService instance to use
+     */
+    public TransactionService(UserLookupService userLookupService) {
+        this.userLookupService = userLookupService;
+    }
 
     /**
      * Adds a new transaction for a user.
      * Takes in transaction details, creates a new Transaction object, and stores it in a list.
-     * Associates the transaction with the specified user ID.
+     * Associates the transaction with the specified username.
      *
-     * @param username          The username of the user for whom the transaction is created
+     * @param username        The username of the user for whom the transaction is created
      * @param transactionType The type of transaction (e.g., "income", "expense", "investment")
      * @param amount          The amount of money involved in the transaction
      * @param transactionDate The date of the transaction
      * @param description     A brief description of the transaction
      */
     public void addTransaction(String username, String transactionType, double amount, LocalDate transactionDate, String description) {
-        if (!userService.usernameExists(username)) {
+        if (!userLookupService.usernameExists(username)) {
             throw new IllegalArgumentException("Username '" + username + "' does not exist. Cannot add transaction.");
         }
         transactions.add(new Transaction(username, transactionType, amount, transactionDate, description));
@@ -41,7 +48,7 @@ public class TransactionService {
 
     /**
      * Retrieves all transactions for a specific user.
-     * Searches the list of transactions and returns only those associated with the provided user ID.
+     * Searches the list of transactions and returns only those associated with the provided username.
      *
      * @param username The username of the user whose transactions are being retrieved
      * @return A list of transactions associated with the given username
@@ -50,8 +57,8 @@ public class TransactionService {
 
         List<Transaction> userTransactions = new ArrayList<>();
 
-        // Check if the username exists in UserService
-        if (!userService.usernameExists(username)) {
+        // Check if the username exists using UserLookupService
+        if (!userLookupService.usernameExists(username)) {
             throw new IllegalArgumentException("Username '" + username + "' does not exist.");
         }
 
@@ -65,10 +72,9 @@ public class TransactionService {
         return userTransactions;
     }
 
-
     /**
-     * Deletes a specific transaction for a user.
-     * Searches for the transaction by its ID and the username, then removes it from the list if found.
+     * Deletes a specific transaction.
+     * Searches for the transaction by its ID and removes it from the list if found.
      *
      * @param transactionId The unique ID of the transaction to delete
      * @return true if the transaction was successfully deleted, false if not found
@@ -79,7 +85,6 @@ public class TransactionService {
 
         while (iterator.hasNext()) {
             Transaction transaction = iterator.next();
-
 
             if (transaction.getTransactionId() == transactionId) {
                 iterator.remove();
@@ -94,7 +99,7 @@ public class TransactionService {
      * Calculates the total amount for a specific transaction type for a user.
      * Sums all transaction amounts for the given type (e.g., "income" or "expense") associated with the specified username.
      *
-     * @param username          The username of the user whose transactions are being calculated
+     * @param username        The username of the user whose transactions are being calculated
      * @param transactionType The type of transaction to filter by (e.g., "income", "expense")
      * @return The total amount for the specified transaction type for the user
      */
@@ -109,6 +114,5 @@ public class TransactionService {
         }
         return sum;
     }
-
 
 }

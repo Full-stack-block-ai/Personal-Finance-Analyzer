@@ -131,11 +131,7 @@ public class User {
      * @return the password
      */
     public String getPassword() {
-        if (isValidPassword(password)){
-            return password;
-        }else{
-            throw new IllegalArgumentException("Invalid password");
-        }
+        return this.password;
     }
 
     /**
@@ -144,6 +140,10 @@ public class User {
      * @param password the new password
      */
     public void setPassword(String password) {
-        this.password = password;
+        if (isValidPassword(password)){
+            this.password = password;
+        }else{
+            throw new IllegalArgumentException("Invalid password");
+        }
     }
 }

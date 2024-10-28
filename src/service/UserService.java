@@ -1,96 +1,94 @@
 package service;
 
 import model.User;
-
-import java.util.ArrayList;
+import repository.UserRepository;
 
 /**
- * Creates a new valid user from the user class
+ * Service class for managing users.
  */
 public class UserService {
 
-    //arraylist for user objects to be stored
-    private final ArrayList<User> users = new ArrayList<>();
-
+    // Reference to the UserRepository
+    private final UserRepository userRepository;
 
     /**
-     * Creates a new user and adds it to the users list if the username is unique.
+     * Constructor for UserService.
+     *
+     * @param userRepository the UserRepository instance to use
+     */
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * Creates a new user and adds it to the repository if the username is unique.
      *
      * @param username  the username for the new user
      * @param password  the password for the new user
      * @param email     the email for the new user
      * @param firstName the first name of the new user
      * @param lastName  the last name of the new user
+     * @return the created User object, or null if username is already taken
      */
     public User createUser(String username, String password, String email, String firstName, String lastName) {
-        if (usernameExists(username)) {
+        if (userRepository.usernameExists(username)) {
             System.out.println("Username '" + username + "' is already taken. Choose a different username.");
             return null;
         } else {
             User newUser = new User(firstName, lastName, email, username, password);
-            users.add(newUser);
+            userRepository.addUser(newUser);
             System.out.println("User created: " + newUser.getUsername());
             return newUser;
         }
-
     }
-
-    /**
-     * Checks if a username already exists in the users list.
-     *
-     * @param username the username to check
-     * @return true if the username exists, false otherwise
-     */
-    public boolean usernameExists(String username) {
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
 
     /**
      * Retrieves a user's details based on the username.
-     * @param username username
-     * @return user user
+     *
+     * @param username the username
+     * @return the User object if found, null otherwise
      */
     public User getUserDetails(String username) {
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
-        }
-        return null;
+        return userRepository.getUserByUsername(username);
     }
 
     /**
-     *Deletes a user based on the username.
+     * Deletes a user based on the username.
+     *
+     * @param username the username of the user to delete
      */
     public void deleteUser(String username) {
-        if (!usernameExists(username)) {
-            System.out.println("Username '" + username + "' does not exist. Choose a different username.");
-        }else{
-            users.remove(getUserDetails(username));
+        User user = userRepository.getUserByUsername(username);
+        if (user != null) {
+            userRepository.removeUser(user);
+            System.out.println("User '" + username + "' has been deleted.");
+        } else {
+            System.out.println("Username '" + username + "' does not exist. Cannot delete user.");
         }
     }
 
     /**
-     *Checks if username exists and updates user details
+     * Updates the details of an existing user.
+     *
+     * @param username  the username of the user to update
+     * @param password  the new password
+     * @param email     the new email
+     * @param firstName the new first name
+     * @param lastName  the new last name
+     * @return the updated User object, or null if the user does not exist
      */
     public User updateUser(String username, String password, String email, String firstName, String lastName) {
-        if (!usernameExists(username)) {
-            System.out.println("Username '" + username + "' does not exist. Choose a different username.");
+        User existingUser = userRepository.getUserByUsername(username);
+        if (existingUser == null) {
+            System.out.println("Username '" + username + "' does not exist. Cannot update user.");
             return null;
-        }else{
-           User existingUser = getUserDetails(username);
-           existingUser.setPassword(password);
-           existingUser.setEmail(email);
-           existingUser.setFirstName(firstName);
-           existingUser.setLastName(lastName);
+        } else {
+            existingUser.setPassword(password);
+            existingUser.setEmail(email);
+            existingUser.setFirstName(firstName);
+            existingUser.setLastName(lastName);
+            System.out.println("User '" + username + "' has been updated.");
+            return existingUser;
         }
-        return getUserDetails(username);
     }
 }
